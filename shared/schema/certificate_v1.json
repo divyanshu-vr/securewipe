@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://securewipe.local/schema/certificate/v1.0.0",
+  "title": "SecureWipe Certificate Schema v1.0.0",
+  "description": "Cryptographically signed certificate documenting secure file deletion operations",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "certificateId", 
+    "timestamp",
+    "deviceInfo",
+    "operationType",
+    "deletionSummary",
+    "fileOperations",
+    "cryptographicProof"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.0\\.\\d+$",
+      "description": "Semantic version of certificate schema"
+    },
+    "certificateId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "Unique UUID4 identifier for this certificate"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when certificate was generated"
+    },
+    "deviceInfo": {
+      "type": "object",
+      "required": ["deviceId", "hostname", "operatingSystem", "architecture", "userContext"],
+      "properties": {
+        "deviceId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 64,
+          "description": "Unique device identifier (hardware-based when possible)"
+        },
+        "hostname": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "System hostname at time of operation"
+        },
+        "operatingSystem": {
+          "type": "string",
+          "enum": ["Windows", "Linux", "macOS"],
+          "description": "Operating system family"
+        },
+        "architecture": {
+          "type": "string",
+          "enum": ["x86_64", "aarch64", "x86"],
+          "description": "System architecture"
+        },
+        "userContext": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "User account under which operation was performed"
+        }
+      }
+    },
+    "operationType": {
+      "type": "string",
+      "enum": ["quick_clean", "deep_clean"],
+      "description": "Type of SecureWipe operation performed"
+    },
+    "deletionSummary": {
+      "type": "object",
+      "required": [
+        "totalFiles",
+        "totalSizeBytes", 
+        "deletionMethod",
+        "durationSeconds",
+        "successCount",
+        "failureCount"
+      ],
+      "properties": {
+        "totalFiles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSizeBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deletionMethod": {
+          "type": "string",
+          "enum": ["sdelete", "shred", "nwipe-dod", "nwipe-gutmann"]
+        },
+        "durationSeconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "successCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failureCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "fileOperations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sizeBytes", "operation"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "operation": {
+            "type": "string",
+            "enum": ["deleted", "skipped", "failed"]
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 255
+          }
+        }
+      }
+    },
+    "cryptographicProof": {
+      "type": "object",
+      "required": ["algorithm", "publicKey", "signature", "signatureFormat"],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": ["RSA-2048-SHA256", "Ed25519"]
+        },
+        "publicKey": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "signatureFormat": {
+          "type": "string",
+          "enum": ["base64", "hex"]
+        }
+      }
+    }
+  }
+}
