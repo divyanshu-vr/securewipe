@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "securewipe"
+version = "1.0.0"
+description = "Dual-mode secure file deletion system"
+authors = [{name = "SecureWipe Team"}]
+license = {text = "TBD"}
+requires-python = ">=3.8"
+dependencies = [
+    "cryptography>=41.0.2",
+    "jsonschema>=4.20.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.3",
+    "pytest-cov>=4.1.0",
+    "black>=23.11.0",
+    "flake8>=6.1.0",
+    "mypy>=1.7.1",
+    "pyinstaller>=6.2.0"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["shared/tests", "desktop-app/tests", "bootable-iso/tests", "verifier/tests"]
+python_files = ["test_*.py"]
+addopts = "--cov=shared --cov-report=html"

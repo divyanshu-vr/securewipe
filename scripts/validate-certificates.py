@@ -12,10 +12,10 @@ def main():
     try:
         result = subprocess.run([sys.executable, str(test_file)], 
                               capture_output=True, text=True, check=True)
-        print("✅ Certificate compatibility tests PASSED")
+        print("Certificate compatibility tests PASSED")
         return True
     except subprocess.CalledProcessError as e:
-        print("❌ Certificate compatibility tests FAILED")
+        print("Certificate compatibility tests FAILED")
         print(e.stdout)
         print(e.stderr)
         return False

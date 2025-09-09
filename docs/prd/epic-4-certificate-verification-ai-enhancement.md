@@ -17,20 +17,24 @@ so that **I can verify deletion proof independently and share verification with 
 6. Clear VALID/INVALID/TAMPERED status with plain-language explanations
 7. Cross-platform compatibility (Windows/Linux) with portable executable
 
-## Story 4.2 AI-Powered File Categorization Suggestions
+## Story 4.2 AI-Enhanced File Categorization with Graceful Degradation
 
 As a **user scanning files for deletion**,  
-I want **intelligent suggestions about file importance**,  
-so that **I can make better decisions while maintaining control over the process**.
+I want **intelligent suggestions about file importance that don't slow down my workflow**,  
+so that **I can make better decisions while maintaining full control and responsiveness**.
 
 ### Acceptance Criteria
-1. AI suggestions displayed in separate advisory tab (not main interface)
-2. Rule-based categorization remains primary with manual override capability
-3. AI analyzes file content patterns, naming conventions, and usage frequency
-4. Confidence scoring for AI suggestions with clear uncertainty indicators
-5. Optional toggle to enable/disable AI features entirely
-6. Graceful handling of non-English filenames and non-standard file types
-7. AI processing completes within file scanning timeframe without blocking UI
+1. **Primary:** Rule-based heuristics provide instant categorization (file extension, path patterns, size thresholds)
+2. **Secondary:** Optional on-device ML enhancement with strict performance budgets:
+   - Maximum 200ms processing time per file batch (1000 files)
+   - Maximum 500MB RAM usage for ML models
+   - Graceful degradation to rule-based when ML exceeds limits
+3. **No Cloud Dependencies:** All AI processing runs locally with embedded lightweight models
+4. **UX Response Limits:** AI suggestions appear within 500ms or fallback to manual controls
+5. **Confidence Thresholds:** Only display ML suggestions with >70% confidence, otherwise use rule-based defaults
+6. **Performance Monitoring:** Real-time latency tracking with automatic ML disable if consistently slow
+7. **Graceful Fallback:** Full functionality maintained when AI is disabled, slow, or uncertain
+8. **Resource Management:** AI processing paused during active file operations to maintain UI responsiveness
 
 ## Story 4.3 QR Code Generation and Certificate Sharing
 
