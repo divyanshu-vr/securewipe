@@ -2,12 +2,13 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, List
 from pathlib import Path
+from typing import List, Optional
 
 
 class OperationStatus(Enum):
     """Operation status enumeration."""
+
     SUCCESS = "success"
     SKIPPED = "skipped"
     ERROR = "error"
@@ -17,6 +18,7 @@ class OperationStatus(Enum):
 @dataclass
 class OperationResult:
     """Result of a file operation."""
+
     status: OperationStatus
     path: Optional[Path] = None
     message: Optional[str] = None
@@ -36,6 +38,7 @@ class OperationResult:
 @dataclass
 class BatchResult:
     """Result of a batch operation."""
+
     results: List[OperationResult]
     total_processed: int
     success_count: int
@@ -43,16 +46,16 @@ class BatchResult:
     skipped_count: int
 
     @classmethod
-    def from_results(cls, results: List[OperationResult]) -> 'BatchResult':
+    def from_results(cls, results: List[OperationResult]) -> "BatchResult":
         """Create BatchResult from list of OperationResults."""
         success_count = sum(1 for r in results if r.status == OperationStatus.SUCCESS)
         error_count = sum(1 for r in results if r.status == OperationStatus.ERROR)
         skipped_count = sum(1 for r in results if r.status == OperationStatus.SKIPPED)
-        
+
         return cls(
             results=results,
             total_processed=len(results),
             success_count=success_count,
             error_count=error_count,
-            skipped_count=skipped_count
+            skipped_count=skipped_count,
         )

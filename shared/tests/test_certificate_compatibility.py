@@ -2,9 +2,10 @@
 """Certificate compatibility validation tests."""
 
 import json
-import jsonschema
 import unittest
 from pathlib import Path
+
+import jsonschema
 
 
 class TestCertificateCompatibility(unittest.TestCase):

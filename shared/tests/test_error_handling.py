@@ -1,7 +1,7 @@
 """Test error handling and edge cases."""
 
-import unittest
 import sys
+import unittest
 from pathlib import Path
 
 # Add shared to path

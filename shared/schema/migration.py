@@ -1,6 +1,6 @@
 """Schema version migration utilities."""
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 def migrate_certificate(

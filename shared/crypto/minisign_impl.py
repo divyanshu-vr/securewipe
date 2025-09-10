@@ -4,7 +4,8 @@ import json
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
+
 from .certificate_signer import CertificateSigner
 
 

@@ -1,7 +1,7 @@
 """Test schema validator functionality."""
 
-import unittest
 import sys
+import unittest
 from pathlib import Path
 
 # Add shared to path

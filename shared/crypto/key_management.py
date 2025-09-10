@@ -1,7 +1,8 @@
 """Key generation and storage utilities."""
 
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
 from .certificate_signer import CertificateSigner
 
 

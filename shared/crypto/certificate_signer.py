@@ -1,7 +1,7 @@
 """Abstract certificate signer interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
 
 
 class CertificateSigner(ABC):
