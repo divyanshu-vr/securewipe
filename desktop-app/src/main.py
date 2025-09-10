@@ -6,11 +6,18 @@ import sys
 from pathlib import Path
 
 # Add shared module to path
-sys.path.append(str(Path(__file__).parent.parent.parent / "shared"))
+project_root = Path(__file__).parent.parent.parent
+shared_path = str(project_root / "shared")
+if shared_path not in sys.path:
+    sys.path.insert(0, shared_path)
+    sys.path.insert(0, str(project_root))
 
 from logging_setup import setup_application_logging
 
-from shared.utils.exceptions import SecureWipeError
+# Simple exception class
+class SecureWipeError(Exception):
+    """Base exception for SecureWipe application."""
+    pass
 
 
 def parse_arguments():

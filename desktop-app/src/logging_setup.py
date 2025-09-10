@@ -4,11 +4,13 @@ import sys
 from pathlib import Path
 
 # Add shared module to path
-sys.path.append(str(Path(__file__).parent.parent.parent / "shared"))
+shared_path = str(Path(__file__).parent.parent.parent / "shared")
+if shared_path not in sys.path:
+    sys.path.insert(0, shared_path)
 
 from config.defaults import get_log_file_path
 
-from shared.logging.secure_logger import get_logger
+from shared.secure_logging.secure_logger import get_logger
 
 
 def setup_application_logging(debug: bool = False) -> None:

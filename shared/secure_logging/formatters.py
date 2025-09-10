@@ -1,12 +1,12 @@
 """Custom log formatters for SecureWipe."""
 
-import logging
+import logging as std_logging
 from datetime import datetime
 
 from .sanitizer import sanitize_message
 
 
-class SecureFormatter(logging.Formatter):
+class SecureFormatter(std_logging.Formatter):
     """OWASP-compliant log formatter with automatic sanitization."""
 
     def __init__(self):
@@ -14,7 +14,7 @@ class SecureFormatter(logging.Formatter):
         fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         super().__init__(fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
-    def format(self, record: logging.LogRecord) -> str:
+    def format(self, record: std_logging.LogRecord) -> str:
         """Format log record with sanitization."""
         # Sanitize the message before formatting
         if hasattr(record, "msg") and record.msg:
@@ -27,14 +27,14 @@ class SecureFormatter(logging.Formatter):
         return sanitize_message(formatted)
 
 
-class DebugFormatter(logging.Formatter):
+class DebugFormatter(std_logging.Formatter):
     """Enhanced formatter for debug logging with additional context."""
 
     def __init__(self):
         fmt = "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
         super().__init__(fmt, datefmt="%Y-%m-%d %H:%M:%S.%f")
 
-    def format(self, record: logging.LogRecord) -> str:
+    def format(self, record: std_logging.LogRecord) -> str:
         """Format debug record with function and line information."""
         # Sanitize the message
         if hasattr(record, "msg") and record.msg:
@@ -46,7 +46,7 @@ class DebugFormatter(logging.Formatter):
         return sanitize_message(formatted)
 
 
-class AuditFormatter(logging.Formatter):
+class AuditFormatter(std_logging.Formatter):
     """Formatter for audit trail logging with structured format."""
 
     def __init__(self):
@@ -54,7 +54,7 @@ class AuditFormatter(logging.Formatter):
         fmt = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
         super().__init__(fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
-    def format(self, record: logging.LogRecord) -> str:
+    def format(self, record: std_logging.LogRecord) -> str:
         """Format audit record with structured layout."""
         # Sanitize the message
         if hasattr(record, "msg") and record.msg:

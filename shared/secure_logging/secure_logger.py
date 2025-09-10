@@ -1,6 +1,6 @@
 """OWASP-compliant secure logging for SecureWipe."""
 
-import logging
+import logging as std_logging
 import sys
 from pathlib import Path
 from typing import Optional
@@ -11,7 +11,7 @@ from .sanitizer import sanitize_message
 
 def get_logger(
     name: str, debug: bool = False, log_file: Optional[Path] = None
-) -> logging.Logger:
+) -> std_logging.Logger:
     """Get a configured secure logger instance.
 
     Args:
@@ -22,21 +22,21 @@ def get_logger(
     Returns:
         Configured logger instance
     """
-    logger = logging.getLogger(name)
+    logger = std_logging.getLogger(name)
 
     # Avoid duplicate handlers
     if logger.handlers:
         return logger
 
     # Set logging level
-    level = logging.DEBUG if debug else logging.INFO
+    level = std_logging.DEBUG if debug else std_logging.INFO
     logger.setLevel(level)
 
     # Create formatter
     formatter = SecureFormatter()
 
     # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler = std_logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
@@ -45,8 +45,8 @@ def get_logger(
     if log_file:
         try:
             log_file.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file, encoding="utf-8")
-            file_handler.setLevel(logging.DEBUG)  # Always debug level for file
+            file_handler = std_logging.FileHandler(log_file, encoding="utf-8")
+            file_handler.setLevel(std_logging.DEBUG)  # Always debug level for file
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
         except OSError as e:
