@@ -1,0 +1,1 @@
+"""SecureWipe Desktop Application."""
