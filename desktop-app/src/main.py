@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """SecureWipe Desktop Application Entry Point."""
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 
 # Add shared module to path
 sys.path.append(str(Path(__file__).parent.parent.parent / "shared"))
 
-from shared.utils.exceptions import SecureWipeError
 from logging_setup import setup_application_logging
+
+from shared.utils.exceptions import SecureWipeError
 
 
 def parse_arguments():

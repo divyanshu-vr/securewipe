@@ -1,19 +1,19 @@
 """Main application window for SecureWipe Desktop."""
 
-import tkinter as tk
-from tkinter import ttk, messagebox
 import sys
+import tkinter as tk
 from pathlib import Path
+from tkinter import messagebox, ttk
 
 # Add shared module to path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
 
 from config.defaults import (
-    WINDOW_TITLE,
-    WINDOW_MIN_WIDTH,
-    WINDOW_MIN_HEIGHT,
-    WINDOW_DEFAULT_WIDTH,
     WINDOW_DEFAULT_HEIGHT,
+    WINDOW_DEFAULT_WIDTH,
+    WINDOW_MIN_HEIGHT,
+    WINDOW_MIN_WIDTH,
+    WINDOW_TITLE,
 )
 from config.settings import settings
 from logging_setup import get_application_logger
@@ -85,9 +85,13 @@ class MainWindow:
 
         # SecureWipe branding header
         header_frame = ttk.Frame(main_frame)
-        header_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20))
+        header_frame.grid(
+            row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20)
+        )
 
-        title_label = ttk.Label(header_frame, text="SecureWipe", font=("Arial", 24, "bold"))
+        title_label = ttk.Label(
+            header_frame, text="SecureWipe", font=("Arial", 24, "bold")
+        )
         title_label.pack(side=tk.LEFT)
 
         subtitle_label = ttk.Label(
@@ -106,7 +110,9 @@ class MainWindow:
         )
         self.scan_button.pack(side=tk.LEFT, padx=(0, 10))
 
-        self.settings_button = ttk.Button(nav_frame, text="Settings", command=self._open_settings)
+        self.settings_button = ttk.Button(
+            nav_frame, text="Settings", command=self._open_settings
+        )
         self.settings_button.pack(side=tk.LEFT, padx=(0, 10))
 
         # Status indicator
@@ -115,8 +121,12 @@ class MainWindow:
         status_label.pack(side=tk.RIGHT)
 
         # Main content area (placeholder for future file tree)
-        content_frame = ttk.LabelFrame(main_frame, text="Directory Contents", padding="10")
-        content_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S))
+        content_frame = ttk.LabelFrame(
+            main_frame, text="Directory Contents", padding="10"
+        )
+        content_frame.grid(
+            row=2, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S)
+        )
 
         placeholder_label = ttk.Label(
             content_frame,

@@ -1,0 +1,58 @@
+"""Operation result tracking models."""
+
+from dataclasses import dataclass
+from enum import Enum
+from typing import Optional, List
+from pathlib import Path
+
+
+class OperationStatus(Enum):
+    """Operation status enumeration."""
+    SUCCESS = "success"
+    SKIPPED = "skipped"
+    ERROR = "error"
+    CANCELLED = "cancelled"
+
+
+@dataclass
+class OperationResult:
+    """Result of a file operation."""
+    status: OperationStatus
+    path: Optional[Path] = None
+    message: Optional[str] = None
+    error_code: Optional[str] = None
+
+    @property
+    def is_success(self) -> bool:
+        """Check if operation was successful."""
+        return self.status == OperationStatus.SUCCESS
+
+    @property
+    def is_error(self) -> bool:
+        """Check if operation had an error."""
+        return self.status == OperationStatus.ERROR
+
+
+@dataclass
+class BatchResult:
+    """Result of a batch operation."""
+    results: List[OperationResult]
+    total_processed: int
+    success_count: int
+    error_count: int
+    skipped_count: int
+
+    @classmethod
+    def from_results(cls, results: List[OperationResult]) -> 'BatchResult':
+        """Create BatchResult from list of OperationResults."""
+        success_count = sum(1 for r in results if r.status == OperationStatus.SUCCESS)
+        error_count = sum(1 for r in results if r.status == OperationStatus.ERROR)
+        skipped_count = sum(1 for r in results if r.status == OperationStatus.SKIPPED)
+        
+        return cls(
+            results=results,
+            total_processed=len(results),
+            success_count=success_count,
+            error_count=error_count,
+            skipped_count=skipped_count
+        )

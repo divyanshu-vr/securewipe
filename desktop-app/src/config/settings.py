@@ -1,9 +1,9 @@
 """User preferences and settings management."""
 
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 
-from .defaults import get_user_config_dir, LOG_LEVEL_DEFAULT
+from .defaults import LOG_LEVEL_DEFAULT, get_user_config_dir
 
 
 class Settings:
@@ -31,7 +31,10 @@ class Settings:
         self._settings = {
             "log_level": LOG_LEVEL_DEFAULT,
             "window_geometry": {"width": 1024, "height": 768, "x": None, "y": None},
-            "scan_preferences": {"include_hidden_files": False, "include_system_files": False},
+            "scan_preferences": {
+                "include_hidden_files": False,
+                "include_system_files": False,
+            },
             "ui_preferences": {"theme": "default", "show_tooltips": True},
         }
         self.save()

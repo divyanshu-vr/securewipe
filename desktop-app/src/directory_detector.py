@@ -1,18 +1,17 @@
 """Directory detection and validation for SecureWipe Desktop."""
 
 import os
-
-from pathlib import Path
-from typing import List, Dict, Optional
 import sys
+from pathlib import Path
+from typing import Dict, List, Optional
 
 # Add shared module to path
 sys.path.append(str(Path(__file__).parent.parent.parent / "shared"))
 
-from shared.logging.secure_logger import get_logger
-from shared.logging.sanitizer import sanitize_path
-
 from config.defaults import DEFAULT_USER_DIRECTORIES, TEMP_DIRECTORIES
+
+from shared.logging.sanitizer import sanitize_path
+from shared.logging.secure_logger import get_logger
 
 
 class DirectoryDetector:
@@ -37,7 +36,9 @@ class DirectoryDetector:
                     self.logger.warning(f"Could not access {dir_name} directory")
             except Exception as e:
                 directories[dir_name] = None
-                self.logger.error(f"Error detecting {dir_name}: {sanitize_path(str(e))}")
+                self.logger.error(
+                    f"Error detecting {dir_name}: {sanitize_path(str(e))}"
+                )
 
         return directories
 
@@ -51,7 +52,9 @@ class DirectoryDetector:
                 path = Path(temp_path).resolve()
                 if self._validate_directory_access(path):
                     temp_dirs.append(path)
-                    self.logger.info(f"Detected temp directory: {sanitize_path(str(path))}")
+                    self.logger.info(
+                        f"Detected temp directory: {sanitize_path(str(path))}"
+                    )
             except Exception as e:
                 self.logger.warning(
                     f"Could not access temp directory {sanitize_path(temp_path)}: {e}"
@@ -100,11 +103,15 @@ class DirectoryDetector:
         """Validate directory exists and is accessible."""
         try:
             if not path.exists():
-                self.logger.warning(f"Directory does not exist: {sanitize_path(str(path))}")
+                self.logger.warning(
+                    f"Directory does not exist: {sanitize_path(str(path))}"
+                )
                 return False
 
             if not path.is_dir():
-                self.logger.warning(f"Path is not a directory: {sanitize_path(str(path))}")
+                self.logger.warning(
+                    f"Path is not a directory: {sanitize_path(str(path))}"
+                )
                 return False
 
             # Test read access
@@ -116,7 +123,9 @@ class DirectoryDetector:
                 return False
 
         except Exception as e:
-            self.logger.error(f"Error validating directory {sanitize_path(str(path))}: {e}")
+            self.logger.error(
+                f"Error validating directory {sanitize_path(str(path))}: {e}"
+            )
             return False
 
     def check_permissions(self, path: Path) -> Dict[str, bool]:
@@ -148,7 +157,9 @@ class DirectoryDetector:
                 pass
 
         except Exception as e:
-            self.logger.error(f"Error checking permissions for {sanitize_path(str(path))}: {e}")
+            self.logger.error(
+                f"Error checking permissions for {sanitize_path(str(path))}: {e}"
+            )
 
         return permissions
 
