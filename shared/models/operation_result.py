@@ -12,6 +12,8 @@ class OperationStatus(Enum):
     SUCCESS = "success"
     SKIPPED = "skipped"
     ERROR = "error"
+    FAILED = "failed"
+    PERMISSION_DENIED = "permission_denied"
     CANCELLED = "cancelled"
 
 
@@ -20,8 +22,9 @@ class OperationResult:
     """Result of a file operation."""
 
     status: OperationStatus
-    path: Optional[Path] = None
     message: Optional[str] = None
+    path: Optional[Path] = None
+    error: Optional[str] = None
     error_code: Optional[str] = None
 
     @property
