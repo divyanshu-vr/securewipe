@@ -10,7 +10,7 @@ from typing import Callable, Iterator, List, Optional
 # Add shared modules to path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
 
-from models.file_info import FileInfo, ScanProgress
+from shared.models.file_info import FileInfo, ScanProgress
 
 from shared.secure_logging.sanitizer import sanitize_path
 from shared.secure_logging.secure_logger import get_logger

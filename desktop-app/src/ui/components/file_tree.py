@@ -10,7 +10,7 @@ from typing import Dict
 sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent / "shared"))
 
 try:
-    from models.file_info import FileInfo, FileType
+    from shared.models.file_info import FileInfo, FileType
 except ImportError:
     # Fallback for testing
     from dataclasses import dataclass

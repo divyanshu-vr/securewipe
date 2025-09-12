@@ -10,13 +10,15 @@ from typing import Any, Callable, Dict, List, Optional
 # Add shared modules to path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
 
-from models.file_info import FileInfo
-from models.operation_result import OperationResult, OperationStatus
-from secure_logging.sanitizer import sanitize_path
-from secure_logging.secure_logger import get_logger
+from shared.models.file_info import FileInfo
+from shared.models.operation_result import OperationResult, OperationStatus
+from shared.secure_logging.sanitizer import sanitize_path
+from shared.secure_logging.secure_logger import get_logger
 
 from .os_integration import DeletionMethod, OSIntegration
 from .progress_tracker import ProgressInfo, ProgressState, ProgressTracker
+
+logger = get_logger(__name__)
 
 # Import certificate generator
 try:
@@ -25,8 +27,6 @@ try:
 except ImportError:
     CERTIFICATE_AVAILABLE = False
     logger.warning("Certificate generation not available")
-
-logger = get_logger(__name__)
 
 
 @dataclass

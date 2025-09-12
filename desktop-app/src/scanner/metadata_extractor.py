@@ -7,7 +7,7 @@ from pathlib import Path
 # Add shared modules to path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
 
-from models.file_info import FileInfo, FileType
+from shared.models.file_info import FileInfo, FileType
 
 from shared.secure_logging.sanitizer import sanitize_path
 from shared.secure_logging.secure_logger import get_logger

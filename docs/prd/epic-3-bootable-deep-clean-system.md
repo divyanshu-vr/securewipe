@@ -27,7 +27,7 @@ so that **I can safely identify and wipe the correct devices without accidents**
 1. nwipe integration for disk-level operations and device listing
 2. Manual device selection with clear device IDs and confirmation
 3. Multi-step confirmations with device name echo and typed "DELETE" confirmation
-4. SSD vs HDD detection using nwipe's hardware identification
+4. SS D vs HDD detection using nwipe's hardware identification
 5. Encrypted drive warnings with clear limitation explanations
 6. Conservative defaults - show warnings rather than guessing capabilities
 7. Device verification working on VM and two test platforms by day 5

@@ -11,7 +11,7 @@ from typing import Callable, Optional
 sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent / "shared"))
 
 try:
-    from models.file_info import ScanProgress
+    from shared.models.file_info import ScanProgress
     from deletion.progress_tracker import ProgressInfo, ProgressState
 except ImportError:
     # Fallback for testing

@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, List, Optional
 # Add shared modules to path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
 
-from models.operation_result import OperationResult, OperationStatus
+from shared.models.operation_result import OperationResult, OperationStatus
 from deletion.progress_tracker import ProgressInfo, ProgressState, ProgressTracker
 from ui.components.statistics_tracker import StatisticsTracker, OperationStatistics
 from ui.components.thread_safe_ui import ThreadSafeUIManager, UIUpdateType, BackgroundOperationManager
