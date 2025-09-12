@@ -2,6 +2,7 @@
 
 import sys
 import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -17,6 +18,14 @@ from secure_logging.secure_logger import get_logger
 from .os_integration import DeletionMethod, OSIntegration
 from .progress_tracker import ProgressInfo, ProgressState, ProgressTracker
 
+# Import certificate generator
+try:
+    from ..certificate.certificate_generator import CertificateGenerator
+    CERTIFICATE_AVAILABLE = True
+except ImportError:
+    CERTIFICATE_AVAILABLE = False
+    logger.warning("Certificate generation not available")
+
 logger = get_logger(__name__)
 
 
@@ -29,6 +38,8 @@ class DeletionConfig:
     require_confirmation: bool = True
     max_retries: int = 3
     retry_delay: float = 1.0
+    generate_certificate: bool = True
+    certificate_path: Optional[Path] = None
 
 
 class SecureDeleteEngine:
@@ -171,6 +182,13 @@ class SecureDeleteEngine:
 
             logger.info(f"Deletion operation completed: {len(results)} files processed")
 
+            # Generate certificate if enabled
+            if self.config.generate_certificate:
+                try:
+                    self._generate_certificate(files, results)
+                except Exception as cert_error:
+                    logger.error(f"Certificate generation failed: {cert_error}")
+
         except Exception as e:
             logger.error(f"Deletion operation failed: {str(e)}")
             # Ensure progress tracker is updated even on error
@@ -298,3 +316,72 @@ class SecureDeleteEngine:
             and self._deletion_thread.is_alive()
             and self.progress_tracker.is_running()
         )
+
+    def _generate_certificate(self, original_files: List[FileInfo], results: List[OperationResult]):
+        """Generate certificate for deletion operation."""
+        if not CERTIFICATE_AVAILABLE:
+            logger.warning("Certificate generation not available")
+            return
+
+        try:
+            # Calculate operation statistics
+            start_time = getattr(self.progress_tracker, '_start_time', time.time())
+            end_time = time.time()
+            duration = end_time - start_time
+
+            # Prepare operation data
+            operation_data = {
+                "operation_type": "quick_clean",
+                "deletion_method": self.config.deletion_method.value,
+                "duration_seconds": duration
+            }
+
+            # Convert results to file operations format
+            file_operations = []
+            for result in results:
+                # Find original file info for size
+                original_file = next(
+                    (f for f in original_files if Path(f.path) == result.path),
+                    None
+                )
+                
+                file_op = {
+                    "path": str(result.path),
+                    "size_bytes": getattr(original_file, 'size', 0) if original_file else 0,
+                    "status": self._map_operation_status(result.status),
+                    "reason": result.message if result.status != OperationStatus.SUCCESS else None
+                }
+                file_operations.append(file_op)
+
+            # Generate certificate
+            cert_generator = CertificateGenerator()
+            certificate, cert_path = cert_generator.generate_certificate(
+                operation_data, file_operations, self.config.certificate_path
+            )
+
+            logger.info(f"Certificate generated: {cert_path}")
+
+            # Store certificate info for UI access
+            self._last_certificate = certificate
+            self._last_certificate_path = cert_path
+
+        except Exception as e:
+            logger.error(f"Certificate generation failed: {e}")
+            raise
+
+    def _map_operation_status(self, status: OperationStatus) -> str:
+        """Map OperationStatus to certificate status."""
+        mapping = {
+            OperationStatus.SUCCESS: "deleted",
+            OperationStatus.SKIPPED: "skipped",
+            OperationStatus.FAILED: "failed",
+            OperationStatus.PERMISSION_DENIED: "failed",
+            OperationStatus.NOT_FOUND: "skipped"
+        }
+        return mapping.get(status, "failed")
+
+    def get_last_certificate(self) -> Optional[tuple]:
+        """Get the last generated certificate and path."""
+        if hasattr(self, '_last_certificate') and hasattr(self, '_last_certificate_path'):
+            return self._last_certificate, self._last_certificate_path
+        return None

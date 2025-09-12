@@ -46,3 +46,28 @@ class CertificateSigner(ABC):
             True if signature is valid
         """
         pass
+
+    @abstractmethod
+    def sign(self, data: bytes) -> Dict[str, str]:
+        """Sign raw data and return signature metadata.
+
+        Args:
+            data: Raw bytes to sign
+
+        Returns:
+            Dict containing algorithm, public_key, signature, signature_format
+        """
+        pass
+
+    @abstractmethod
+    def verify(self, data: bytes, signature_data: Dict[str, str]) -> bool:
+        """Verify raw data signature.
+
+        Args:
+            data: Original data bytes
+            signature_data: Signature metadata dict
+
+        Returns:
+            True if signature is valid
+        """
+        pass

@@ -86,6 +86,31 @@ pytest desktop-app/tests/test_scanner.py::TestFileScanner::test_scan_directory
 pytest -k "test_certificate"
 ```
 
+### Amazon Q Agent Commands (BMAD™ Core)
+```bash
+# Development agent (James)
+*help                    # Show available commands
+*develop-story          # Implement story tasks sequentially
+*review-qa              # Apply QA fixes
+*run-tests              # Execute linting and tests
+
+# Architecture agent (Winston)
+*create-full-stack-architecture    # Create comprehensive architecture docs
+*document-project                  # Document existing project
+*research {topic}                  # Deep research on specific topics
+
+# QA agent (Quinn) 
+*review {story}          # Comprehensive quality review
+*gate {story}            # Quality gate decision
+*test-design {story}     # Create test scenarios
+*risk-profile {story}    # Generate risk assessment
+
+# Product Manager (John)
+*create-prd              # Create Product Requirements Document
+*create-story            # Create user stories
+*shard-prd              # Break PRD into manageable pieces
+```
+
 ## Architecture & Code Organization
 
 ### Dual-Mode Architecture
@@ -106,12 +131,18 @@ The system operates in two modes sharing a common certificate schema:
 ### Module Structure
 ```
 SecureWipe/
+├── .amazonq/           # Amazon Q agent rules (dev, architect, qa, pm)
+├── .bmad-core/         # BMAD™ Core configuration and tasks
 ├── desktop-app/        # Team 1: Desktop Quick Clean
 ├── bootable-iso/       # Team 2: Bootable Deep Clean
 ├── shared/             # Common: Certificate schema, crypto, logging
 ├── verifier/           # Standalone certificate verifier
 ├── scripts/            # Build & deployment automation
 └── docs/               # Architecture & development guides
+    ├── architecture/   # Sharded architecture documentation
+    ├── prd/           # Sharded PRD documentation
+    ├── qa/            # QA gates and test documentation
+    └── stories/       # Story-driven development files
 ```
 
 ### Critical Shared Components
@@ -132,6 +163,18 @@ SecureWipe/
 - Required for all file system operations
 
 ## Critical Development Rules
+
+### BMAD™ Core Integration
+This project uses BMAD™ Core with Amazon Q agent roles:
+- **James (dev)**: Full Stack Developer for code implementation and debugging
+- **Winston (architect)**: System design and architecture documents
+- **Quinn (qa)**: Test architecture and quality assurance
+- **John (pm)**: Product management and PRD creation
+
+**Always Load Files**: According to `.bmad-core/core-config.yaml`, developers must always load:
+- `docs/architecture/coding-standards.md`
+- `docs/architecture/tech-stack.md`
+- `docs/architecture/source-tree.md`
 
 ### Certificate Schema Compliance
 - ALL certificate generation MUST validate against `shared/schema/certificate_v1.json`
@@ -181,6 +224,19 @@ from schema.validator import validate_certificate
 from crypto.key_management import get_signer
 from logging.secure_logger import get_logger
 ```
+
+### Story-Driven Development (BMAD™ Core)
+- Development follows story-based workflow with specific agent roles
+- Stories located in `docs/stories/` with structured format
+- Dev agents only update specific story sections (checkboxes, Debug Log, Completion Notes, Change Log)
+- QA results updated only in "QA Results" section by QA agents
+- All development follows the `*develop-story` command workflow
+
+### Quality Gates
+- QA gates stored in `docs/qa/gates/` with PASS/CONCERNS/FAIL/WAIVED decisions
+- Comprehensive review includes risk assessment and requirements traceability
+- Test scenarios use Given-When-Then patterns
+- Non-functional requirements (security, performance, reliability) validated via scenarios
 
 ## Security & Performance Requirements
 

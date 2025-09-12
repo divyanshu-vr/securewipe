@@ -456,7 +456,7 @@ class MainWindow:
                 results = deletion_engine.delete_files_sync(files_to_delete)
                 
                 # Show completion results
-                deletion_dialog.after(0, lambda: self._show_deletion_results(results, deletion_dialog))
+                deletion_dialog.after(0, lambda: self._show_deletion_results(results, deletion_dialog, deletion_engine))
                 
             except Exception as e:
                 self.logger.error(f"Deletion error: {e}")
@@ -475,8 +475,8 @@ class MainWindow:
         deletion_dialog.transient(self.root)
         deletion_dialog.grab_set()
     
-    def _show_deletion_results(self, results, deletion_dialog):
-        """Show deletion completion results."""
+    def _show_deletion_results(self, results, deletion_dialog, deletion_engine=None):
+        """Show deletion completion results with certificate option."""
         from tkinter import messagebox
         
         # Close deletion dialog
@@ -495,8 +495,43 @@ class MainWindow:
             f"All selected files have been securely overwritten and are unrecoverable."
         )
         
-        messagebox.showinfo("Deletion Complete", result_message)
+        # Check if certificate was generated
+        certificate_info = None
+        if deletion_engine:
+            certificate_info = deletion_engine.get_last_certificate()
+        
+        if certificate_info:
+            result_message += "\\n\\nA cryptographic certificate has been generated to verify this operation."
+            
+            # Show results with certificate option
+            result = messagebox.askyesno(
+                "Deletion Complete", 
+                result_message + "\\n\\nWould you like to view the certificate?",
+                icon='question'
+            )
+            
+            if result:
+                self._show_certificate_viewer(certificate_info)
+        else:
+            messagebox.showinfo("Deletion Complete", result_message)
+        
         self.logger.info(f"Deletion completed: {success_count} success, {error_count} errors, {skipped_count} skipped")
+
+    def _show_certificate_viewer(self, certificate_info):
+        """Show certificate viewer window."""
+        try:
+            from .certificate_viewer import CertificateViewer
+            
+            certificate, certificate_path = certificate_info
+            viewer = CertificateViewer(self.root)
+            viewer.show_certificate(certificate, certificate_path)
+            
+        except Exception as e:
+            self.logger.error(f"Failed to show certificate viewer: {e}")
+            messagebox.showerror(
+                "Certificate Error",
+                f"Failed to display certificate: {e}"
+            )
     
     def _update_info_display(self, info_text):
         """Update the information display area."""

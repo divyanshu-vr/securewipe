@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "certificateId": "e73b9628-9a81-41fe-af1f-69e7ac44c203",
+  "timestamp": "2025-09-12T04:54:50.606652+00:00",
+  "deviceInfo": {
+    "deviceId": "405996ad368761a161d8545dd41ac288",
+    "hostname": "LAPTOP-IF28KU4O",
+    "operatingSystem": "Windows",
+    "architecture": "x86_64",
+    "userContext": "LENOVO"
+  },
+  "operationType": "quick_clean",
+  "deletionSummary": {
+    "totalFiles": 6,
+    "totalSizeBytes": 24597056,
+    "deletionMethod": "sdelete",
+    "durationSeconds": 45.7,
+    "successCount": 5,
+    "failureCount": 1
+  },
+  "fileOperations": [
+    {
+      "path": "C:\\Users\\John\\AppData\\Local\\Temp\\tmp_file_001.tmp",
+      "sizeBytes": 2048576,
+      "operation": "deleted"
+    },
+    {
+      "path": "C:\\Users\\John\\Downloads\\old_document.pdf",
+      "sizeBytes": 5242880,
+      "operation": "deleted"
+    },
+    {
+      "path": "C:\\Users\\John\\Documents\\cache\\browser_cache.dat",
+      "sizeBytes": 15728640,
+      "operation": "deleted"
+    },
+    {
+      "path": "C:\\Users\\John\\AppData\\Roaming\\app_logs.log",
+      "sizeBytes": 1048576,
+      "operation": "deleted"
+    },
+    {
+      "path": "C:\\Windows\\System32\\important.dll",
+      "sizeBytes": 524288,
+      "operation": "failed",
+      "reason": "System file - access denied"
+    },
+    {
+      "path": "C:\\Users\\John\\Desktop\\temp_notes.txt",
+      "sizeBytes": 4096,
+      "operation": "deleted"
+    }
+  ],
+  "cryptographicProof": {
+    "algorithm": "RSA-2048-SHA256",
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+Hz3NogNZ5sLI/6fa8rB\nZfg1igpLDn7Pcp+VMXrXe3Zb5ESbK/gw8CKqoH5gVtiT4a7bxsDbw1EWXyL4FI04\na4RoVLI7oiccYK41LxLPFydP4kAg2FMuyPA34uJtoREmeNUJ65lXfdVJ7xg9/7fc\nc9F0WYbpZ+LdHeiorVeeW+s/cGk1VXdRK+4UqtHcGvG8meIAjUWI2wIwQV/rq0Fh\nzJnYrBid/llgYxZ9n4mkbCuLAT9AIZ5ytd4oFoS8TP2ntKqUhnmCWofVyDwxmFtP\n0qSrWinBEy3H6MKJNHTpES1xlB79T6Q7C5FzPN28jsMqNAiwu4jb8ws8GJOAySVl\naQIDAQAB\n-----END PUBLIC KEY-----\n",
+    "signature": "txkpngrmmvRoJ9DPoczBAlxkKgd5dpkzyg+npXC9B+cGNxlbmaGKIvM5cEMw3agDMwggg/QTLyiUZyuVZlFdZWgtwr2LBQU9OEdBsaFybifxP5YMEmVO5X3Yoo9F2/bm74ZR/s1UD9mCjLJeG2nMlnDr4sEzbYSUQq5Ht54F942YSCRI6OjDSFBrIZBm8r8A3jhjxOOJQBuxqZtoA+YLVXpcasPbSCxK3VZ2AcSjb6bTMXgSqxypwpt1DmPeDQynwAKNeMtZBrwDENOVAeEKODg9jCwFcsJLhdqE+CLbY1zJhm9cTbr3TX/bIFc6d1NpE2+ugnvVrvxRpVNoYVMcgQ==",
+    "signatureFormat": "base64"
+  }
+}
