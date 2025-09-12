@@ -13,9 +13,9 @@ sys.path.append(str(Path(__file__).parent.parent.parent / "src"))
 
 # Mock the shared modules to avoid import issues
 sys.modules['shared'] = Mock()
-sys.modules['shared.logging'] = Mock()
-sys.modules['shared.logging.secure_logger'] = Mock()
-sys.modules['shared.logging.sanitizer'] = Mock()
+sys.modules['shared.secure_logging'] = Mock()
+sys.modules['shared.secure_logging.secure_logger'] = Mock()
+sys.modules['shared.secure_logging.sanitizer'] = Mock()
 sys.modules['shared.models'] = Mock()
 sys.modules['shared.models.file_info'] = Mock()
 
@@ -34,8 +34,8 @@ def mock_sanitize_path(path):
 
 # Patch the imports
 with patch.dict('sys.modules', {
-    'shared.logging.secure_logger': Mock(get_logger=mock_get_logger),
-    'shared.logging.sanitizer': Mock(sanitize_path=mock_sanitize_path),
+    'shared.secure_logging.secure_logger': Mock(get_logger=mock_get_logger),
+    'shared.secure_logging.sanitizer': Mock(sanitize_path=mock_sanitize_path),
 }):
     from scanner.metadata_extractor import MetadataExtractor, FileType
 

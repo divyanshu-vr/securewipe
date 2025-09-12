@@ -12,8 +12,8 @@ sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
 
 from models.file_info import FileInfo
 
-from shared.logging.sanitizer import sanitize_path
-from shared.logging.secure_logger import get_logger
+from shared.secure_logging.sanitizer import sanitize_path
+from shared.secure_logging.secure_logger import get_logger
 
 logger = get_logger(__name__)
 

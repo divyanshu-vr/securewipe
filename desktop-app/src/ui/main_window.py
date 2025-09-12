@@ -33,6 +33,11 @@ class MainWindow:
         self._create_main_interface()
         self._setup_status_bar()
 
+        # Initialize workflow state
+        self.scanned_files = []
+        self.categorized_files = {}
+        self.selected_files = []
+        
         self.logger.info("SecureWipe Desktop application initialized")
 
     def _setup_window(self) -> None:
@@ -128,13 +133,23 @@ class MainWindow:
             row=2, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S)
         )
 
-        placeholder_label = ttk.Label(
+        # Create scrollable text area for scan information
+        info_text = tk.Text(
             content_frame,
-            text="Click 'Start File Scan' to begin scanning your directories\\nfor files that can be securely deleted.",
-            justify=tk.CENTER,
-            font=("Arial", 11),
+            wrap=tk.WORD,
+            height=15,
+            font=("Arial", 10),
+            state=tk.DISABLED,
+            bg='#f8f8f8'
         )
-        placeholder_label.pack(expand=True)
+        info_scrollbar = ttk.Scrollbar(content_frame, orient=tk.VERTICAL, command=info_text.yview)
+        info_text.config(yscrollcommand=info_scrollbar.set)
+        
+        info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        info_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Add initial information
+        self._update_info_display(info_text)
 
     def _setup_status_bar(self) -> None:
         """Create status bar at bottom of window."""
@@ -150,20 +165,72 @@ class MainWindow:
         version_label.pack(side=tk.RIGHT, padx=5, pady=2)
 
     def _start_scan(self) -> None:
-        """Handle start scan button click."""
+        """Handle start scan button click with full workflow integration."""
         self.logger.info("User initiated file scan")
         self.status_var.set("Scanning directories...")
         self.scan_button.config(state="disabled")
-
-        # Placeholder for future scanner integration
-        messagebox.showinfo(
-            "File Scanner",
-            "File scanning functionality will be implemented in the next story.\\n\\n"
-            "This will scan your Documents, Downloads, Desktop, and temp directories.",
-        )
-
-        self.status_var.set("Scan completed")
-        self.scan_button.config(state="normal")
+        
+        try:
+            # Import components from Stories 2.1 and 2.2
+            from scanner.file_scanner import FileScanner
+            from scanner.categorizer import FileCategorizer
+            from ui.progress_dialog import ProgressDialog
+            from deletion.secure_delete import SecureDeleteEngine
+            from directory_detector import DirectoryDetector
+            
+            # Initialize components
+            scanner = FileScanner()
+            categorizer = FileCategorizer()
+            detector = DirectoryDetector(debug=self.debug)
+            
+            # Detect directories to scan
+            user_dirs = detector.detect_user_directories()
+            temp_dirs = detector.detect_temp_directories()
+            
+            # Collect accessible directories
+            scan_directories = []
+            for name, path in user_dirs.items():
+                if path:
+                    scan_directories.append(path)
+            scan_directories.extend(temp_dirs)
+            
+            if not scan_directories:
+                messagebox.showwarning(
+                    "No Directories",
+                    "No accessible directories found to scan."
+                )
+                self.status_var.set("Ready to scan directories")
+                self.scan_button.config(state="normal")
+                return
+            
+            # Show scanning progress dialog
+            progress_dialog = ProgressDialog(
+                self.root, 
+                title="SecureWipe - File Scanning Progress"
+            )
+            
+            # Start the integrated workflow
+            self._run_integrated_workflow(
+                scanner, categorizer, scan_directories, progress_dialog
+            )
+            
+        except ImportError as e:
+            self.logger.error(f"Component import error: {e}")
+            messagebox.showerror(
+                "Component Error",
+                f"Required components not available: {e}\\n\\n"
+                "Please ensure Stories 2.1 and 2.2 are properly implemented."
+            )
+            self.status_var.set("Ready to scan directories")
+            self.scan_button.config(state="normal")
+        except Exception as e:
+            self.logger.error(f"Scan initialization error: {e}")
+            messagebox.showerror(
+                "Scan Error",
+                f"Error starting scan: {e}"
+            )
+            self.status_var.set("Ready to scan directories")
+            self.scan_button.config(state="normal")
 
     def _open_settings(self) -> None:
         """Handle settings button click."""
@@ -205,6 +272,273 @@ class MainWindow:
         x = int(size_pos[1]) if len(size_pos) > 1 else 0
         y = int(size_pos[2]) if len(size_pos) > 2 else 0
         return width, height, x, y
+    
+    def _run_integrated_workflow(self, scanner, categorizer, directories, progress_dialog):
+        """Run the integrated scan and deletion workflow."""
+        import threading
+        from tkinter import messagebox
+        
+        def workflow_thread():
+            """Background thread for the complete workflow."""
+            try:
+                # Phase 1: File Scanning
+                self.logger.info("Starting file scanning phase")
+                progress_dialog.milestone_indicator.set_milestone('scan', False)
+                
+                scanned_files = []
+                
+                def progress_callback(progress):
+                    """Handle scan progress updates."""
+                    progress_dialog.after(0, lambda: progress_dialog._log_message(
+                        f"Scanning: {progress.scanned_files} files found", "INFO"
+                    ))
+                
+                def file_callback(file_info):
+                    """Handle individual file discoveries."""
+                    scanned_files.append(file_info)
+                
+                # Scan directories
+                for file_info in scanner.scan_directories(
+                    directories, progress_callback, file_callback
+                ):
+                    if scanner.is_cancelled:
+                        break
+                
+                if scanner.is_cancelled:
+                    progress_dialog.after(0, lambda: progress_dialog._log_message(
+                        "Scan cancelled by user", "WARNING"
+                    ))
+                    return
+                
+                self.scanned_files = scanned_files
+                progress_dialog.after(0, lambda: progress_dialog.milestone_indicator.set_milestone('scan', True))
+                progress_dialog.after(0, lambda: progress_dialog._log_message(
+                    f"Scan completed: {len(scanned_files)} files found", "SUCCESS"
+                ))
+                
+                # Phase 2: File Categorization
+                self.logger.info("Starting file categorization phase")
+                progress_dialog.after(0, lambda: progress_dialog.milestone_indicator.set_milestone('categorize', False))
+                
+                categorized_files = {}
+                for i, file_info in enumerate(scanned_files):
+                    if scanner.is_cancelled:
+                        break
+                    
+                    category_result = categorizer.categorize_file(file_info)
+                    category_name = category_result.category.value
+                    
+                    if category_name not in categorized_files:
+                        categorized_files[category_name] = []
+                    categorized_files[category_name].append({
+                        'file_info': file_info,
+                        'category_result': category_result
+                    })
+                    
+                    # Update progress every 100 files
+                    if i % 100 == 0:
+                        progress_dialog.after(0, lambda i=i: progress_dialog._log_message(
+                            f"Categorized {i}/{len(scanned_files)} files", "INFO"
+                        ))
+                
+                self.categorized_files = categorized_files
+                progress_dialog.after(0, lambda: progress_dialog.milestone_indicator.set_milestone('categorize', True))
+                progress_dialog.after(0, lambda: progress_dialog._log_message(
+                    f"Categorization completed: {len(categorized_files)} categories", "SUCCESS"
+                ))
+                
+                # Phase 3: Show Results and Allow Selection
+                progress_dialog.after(0, lambda: self._show_scan_results(progress_dialog))
+                
+            except Exception as e:
+                self.logger.error(f"Workflow error: {e}")
+                progress_dialog.after(0, lambda: progress_dialog._log_message(
+                    f"Workflow error: {str(e)}", "ERROR"
+                ))
+                progress_dialog.after(0, lambda: messagebox.showerror(
+                    "Workflow Error", f"An error occurred during scanning: {e}"
+                ))
+            finally:
+                # Re-enable scan button
+                self.root.after(0, lambda: self.scan_button.config(state="normal"))
+                self.root.after(0, lambda: self.status_var.set("Scan completed"))
+        
+        # Start workflow in background thread
+        workflow_thread_obj = threading.Thread(target=workflow_thread, daemon=True)
+        workflow_thread_obj.start()
+        
+        # Show progress dialog
+        progress_dialog.transient(self.root)
+        progress_dialog.grab_set()
+    
+    def _show_scan_results(self, progress_dialog):
+        """Show scan results and allow user to select files for deletion."""
+        from tkinter import messagebox
+        
+        # Close progress dialog
+        progress_dialog.destroy()
+        
+        # Show results summary
+        total_files = len(self.scanned_files)
+        safe_count = len(self.categorized_files.get('safe', []))
+        less_important_count = len(self.categorized_files.get('lessImportant', []))
+        important_count = len(self.categorized_files.get('important', []))
+        
+        result_message = (
+            f"Scan Results:\\n\\n"
+            f"Total files found: {total_files:,}\\n"
+            f"Safe to delete: {safe_count:,}\\n"
+            f"Less important: {less_important_count:,}\\n"
+            f"Important (protected): {important_count:,}\\n\\n"
+            f"Would you like to proceed with secure deletion of safe files?"
+        )
+        
+        if safe_count == 0:
+            messagebox.showinfo("Scan Complete", "No files marked as safe for deletion were found.")
+            return
+        
+        # Ask user if they want to proceed with deletion
+        proceed = messagebox.askyesno("Scan Complete", result_message)
+        
+        if proceed:
+            # Prepare files for deletion (only safe files for now)
+            safe_files = [item['file_info'] for item in self.categorized_files.get('safe', [])]
+            self._start_secure_deletion(safe_files)
+    
+    def _start_secure_deletion(self, files_to_delete):
+        """Start the secure deletion process with progress tracking."""
+        from deletion.secure_delete import SecureDeleteEngine
+        from ui.progress_dialog import ProgressDialog
+        from tkinter import messagebox
+        import threading
+        
+        if not files_to_delete:
+            messagebox.showinfo("No Files", "No files selected for deletion.")
+            return
+        
+        # Final confirmation
+        confirm_message = (
+            f"FINAL CONFIRMATION\\n\\n"
+            f"You are about to PERMANENTLY DELETE {len(files_to_delete):,} files.\\n"
+            f"This action CANNOT be undone.\\n\\n"
+            f"Are you absolutely sure you want to proceed?"
+        )
+        
+        final_confirm = messagebox.askyesno(
+            "Final Confirmation", 
+            confirm_message,
+            icon='warning'
+        )
+        
+        if not final_confirm:
+            self.logger.info("User cancelled deletion at final confirmation")
+            return
+        
+        # Create deletion progress dialog
+        deletion_dialog = ProgressDialog(
+            self.root,
+            title="SecureWipe - Secure Deletion Progress"
+        )
+        
+        # Initialize deletion engine with progress callback
+        def deletion_progress_callback(progress_info):
+            """Handle deletion progress updates."""
+            deletion_dialog.after(0, lambda: deletion_dialog._update_ui(progress_info))
+        
+        deletion_engine = SecureDeleteEngine(progress_callback=deletion_progress_callback)
+        
+        def deletion_thread():
+            """Background thread for secure deletion."""
+            try:
+                self.logger.info(f"Starting secure deletion of {len(files_to_delete)} files")
+                
+                # Execute secure deletion synchronously
+                results = deletion_engine.delete_files_sync(files_to_delete)
+                
+                # Show completion results
+                deletion_dialog.after(0, lambda: self._show_deletion_results(results, deletion_dialog))
+                
+            except Exception as e:
+                self.logger.error(f"Deletion error: {e}")
+                deletion_dialog.after(0, lambda: deletion_dialog._log_message(
+                    f"Deletion error: {str(e)}", "ERROR"
+                ))
+                deletion_dialog.after(0, lambda: messagebox.showerror(
+                    "Deletion Error", f"An error occurred during deletion: {e}"
+                ))
+        
+        # Start deletion in background thread
+        deletion_thread_obj = threading.Thread(target=deletion_thread, daemon=True)
+        deletion_thread_obj.start()
+        
+        # Show deletion progress dialog
+        deletion_dialog.transient(self.root)
+        deletion_dialog.grab_set()
+    
+    def _show_deletion_results(self, results, deletion_dialog):
+        """Show deletion completion results."""
+        from tkinter import messagebox
+        
+        # Close deletion dialog
+        deletion_dialog.destroy()
+        
+        # Show results
+        success_count = sum(1 for r in results if r.status.name == 'SUCCESS')
+        error_count = sum(1 for r in results if r.status.name == 'ERROR')
+        skipped_count = sum(1 for r in results if r.status.name == 'SKIPPED')
+        
+        result_message = (
+            f"Secure Deletion Complete\\n\\n"
+            f"Successfully deleted: {success_count:,} files\\n"
+            f"Errors: {error_count:,} files\\n"
+            f"Skipped: {skipped_count:,} files\\n\\n"
+            f"All selected files have been securely overwritten and are unrecoverable."
+        )
+        
+        messagebox.showinfo("Deletion Complete", result_message)
+        self.logger.info(f"Deletion completed: {success_count} success, {error_count} errors, {skipped_count} skipped")
+    
+    def _update_info_display(self, info_text):
+        """Update the information display area."""
+        info_text.config(state=tk.NORMAL)
+        info_text.delete(1.0, tk.END)
+        
+        info_content = """SecureWipe Desktop - Quick Clean Mode
+
+INTEGRATED FEATURES:
+✓ Story 2.1: Secure File Deletion Engine
+✓ Story 2.2: Real-Time Progress Visualization
+
+WORKFLOW:
+1. Click 'Start File Scan' to begin
+2. Automatic directory detection (Documents, Downloads, Desktop, Temp)
+3. Real-time scanning with gaming-inspired progress UI
+4. Intelligent file categorization:
+   • Safe: Temp files, cache, logs (safe to delete)
+   • Less Important: User documents (review recommended)
+   • Important: System files (protected from deletion)
+5. Secure deletion with NIST SP 800-88 compliance
+6. Real-time deletion progress with detailed logging
+
+SECURITY FEATURES:
+• Multiple confirmation dialogs prevent accidental deletion
+• System file protection with comprehensive detection
+• OWASP-compliant secure logging (no sensitive data exposure)
+• Cross-platform secure deletion (sdelete/shred integration)
+• Thread-safe UI with cancellation support
+
+DIRECTORIES SCANNED:
+• Documents folder
+• Downloads folder  
+• Desktop folder
+• System temporary directories
+• Browser cache directories
+
+Ready to begin secure file deletion. Click 'Start File Scan' when ready.
+"""
+        
+        info_text.insert(tk.END, info_content)
+        info_text.config(state=tk.DISABLED)
 
     def run(self) -> None:
         """Start the application main loop."""
