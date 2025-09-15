@@ -7,11 +7,12 @@ from tkinter import messagebox, ttk
 from typing import Callable, Dict, List, Optional
 
 # Add shared modules to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
-from shared.models.file_info import FileInfo
+from models.file_info import FileInfo
 
-from shared.secure_logging.secure_logger import get_logger
+from secure_logging.secure_logger import get_logger
 
 # Import categorizer
 sys.path.append(str(Path(__file__).parent.parent.parent))

@@ -8,27 +8,28 @@ from typing import List, Optional, Tuple
 
 # Add shared modules to path
 import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
 try:
-    from shared.models.certificate import (
+    from models.certificate import (
         Certificate, DeviceInfo, DeletionSummary, FileOperation,
         CryptographicProof, OperationType, DeletionMethod, OperationStatus
     )
-    from shared.schema.validator import validate_certificate
-    from shared.crypto.certificate_signer import CertificateSigner
-    from shared.utils.device_id import get_device_info
-    from shared.secure_logging.secure_logger import get_logger
+    from schema.validator import validate_certificate
+    from crypto.certificate_signer import CertificateSigner
+    from utils.device_id import get_device_info
+    from secure_logging.secure_logger import get_logger
 except ImportError:
     # Fallback for different import contexts
-    from shared.models.certificate import (
+    from models.certificate import (
         Certificate, DeviceInfo, DeletionSummary, FileOperation,
         CryptographicProof, OperationType, DeletionMethod, OperationStatus
     )
-    from shared.schema.validator import validate_certificate
-    from shared.crypto.certificate_signer import CertificateSigner
-    from shared.utils.device_id import get_device_info
-    from shared.secure_logging.secure_logger import get_logger
+    from schema.validator import validate_certificate
+    from crypto.certificate_signer import CertificateSigner
+    from utils.device_id import get_device_info
+    from secure_logging.secure_logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -50,22 +51,22 @@ class CertificateGenerator:
         try:
             # Try pyca/cryptography first
             try:
-                from shared.crypto.pyca_impl import PycaCertificateSigner
+                from crypto.pyca_impl import PycaCertificateSigner
                 self.signer = PycaCertificateSigner()
                 logger.info("Initialized pyca/cryptography signer")
             except ImportError:
-                from shared.crypto.pyca_impl import PycaCertificateSigner
+                from crypto.pyca_impl import PycaCertificateSigner
                 self.signer = PycaCertificateSigner()
                 logger.info("Initialized pyca/cryptography signer")
         except ImportError:
             try:
                 # Fallback to minisign
                 try:
-                    from shared.crypto.minisign_impl import MinisignCertificateSigner
+                    from crypto.minisign_impl import MinisignCertificateSigner
                     self.signer = MinisignCertificateSigner()
                     logger.info("Initialized minisign fallback signer")
                 except ImportError:
-                    from shared.crypto.minisign_impl import MinisignCertificateSigner
+                    from crypto.minisign_impl import MinisignCertificateSigner
                     self.signer = MinisignCertificateSigner()
                     logger.info("Initialized minisign fallback signer")
             except ImportError:

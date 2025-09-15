@@ -21,13 +21,34 @@ class FileType(Enum):
 
 @dataclass
 class FileInfo:
-    """File metadata structure."""
+    """File metadata structure with all required fields."""
 
     path: Path
     size: int
-    modified_date: datetime
-    file_type: FileType
+    modified_time: float = 0.0
+    created_time: float = 0.0
+    is_hidden: bool = False
+    extension: str = ""
+    file_type: Optional[FileType] = None
     is_accessible: bool = True
+    
+    # Legacy compatibility
+    @property
+    def modified_date(self) -> datetime:
+        """Convert modified_time to datetime for compatibility."""
+        return datetime.fromtimestamp(self.modified_time)
+
+
+@dataclass
+class ScanProgress:
+    """Progress tracking for file scanning operations."""
+    
+    total_files: int = 0
+    scanned_files: int = 0
+    scanned_size: int = 0
+    current_directory: Optional[Path] = None
+    scan_rate: float = 0.0
+    estimated_remaining: float = 0.0
     error_message: Optional[str] = None
     category: Optional[str] = None
     category_reason: Optional[str] = None

@@ -12,7 +12,11 @@ if shared_path not in sys.path:
     sys.path.insert(0, shared_path)
     sys.path.insert(0, str(project_root))
 
-from logging_setup import setup_application_logging
+# Import logging setup
+try:
+    from .logging_setup import setup_application_logging
+except ImportError:
+    from logging_setup import setup_application_logging
 
 # Simple exception class
 class SecureWipeError(Exception):
@@ -39,7 +43,10 @@ def main():
         setup_application_logging(debug=args.debug)
 
         # Import UI after argument parsing to handle early exits
-        from ui.main_window import MainWindow
+        try:
+            from .ui.main_window import MainWindow
+        except ImportError:
+            from ui.main_window import MainWindow
 
         # Initialize and run application
         app = MainWindow(debug=args.debug)

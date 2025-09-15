@@ -9,10 +9,19 @@ from typing import Dict, List, Optional, Callable
 from pathlib import Path
 import threading
 
-from shared.secure_logging.secure_logger import get_logger
-from shared.utils.exceptions import SecureWipeError
+from .modern_components import ModernColors, ModernButton, ModernCard, configure_modern_styles
 
-logger = get_logger(__name__)
+try:
+    from secure_logging.secure_logger import get_logger
+    from utils.exceptions import SecureWipeError
+    logger = get_logger(__name__)
+except ImportError:
+    # Fallback for development
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    class SecureWipeError(Exception):
+        pass
 
 
 class DeletionSummary:
@@ -36,7 +45,7 @@ class DeletionSummary:
 
 
 class ConfirmationDialog:
-    """Base class for confirmation dialogs with common functionality."""
+    """Base class for confirmation dialogs with modern dark theme."""
     
     def __init__(self, parent, title: str):
         self.parent = parent
@@ -46,8 +55,29 @@ class ConfirmationDialog:
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
+        # Configure modern dark styling
+        configure_modern_styles()
+        self.dialog.configure(bg=ModernColors.BACKGROUND)
+        
         # Center dialog on parent
         self.dialog.geometry("600x400")
+        self._center_dialog()
+    
+    def _center_dialog(self):
+        """Center the dialog on the parent window."""
+        self.dialog.update_idletasks()
+        
+        # Get parent window position and size
+        parent_x = self.parent.winfo_x()
+        parent_y = self.parent.winfo_y()
+        parent_width = self.parent.winfo_width()
+        parent_height = self.parent.winfo_height()
+        
+        # Calculate center position
+        x = parent_x + (parent_width - self.dialog.winfo_width()) // 2
+        y = parent_y + (parent_height - self.dialog.winfo_height()) // 2
+        
+        self.dialog.geometry(f"+{x}+{y}")
         self._center_dialog()
         
         # Make dialog modal

@@ -8,12 +8,12 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 # Add shared modules to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
-from shared.models.file_info import FileInfo
-
-from shared.secure_logging.sanitizer import sanitize_path
-from shared.secure_logging.secure_logger import get_logger
+from models.file_info import FileInfo
+from secure_logging.sanitizer import sanitize_path
+from secure_logging.secure_logger import get_logger
 
 logger = get_logger(__name__)
 

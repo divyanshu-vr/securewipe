@@ -10,7 +10,7 @@ import threading
 import time
 from datetime import datetime
 
-from shared.secure_logging.secure_logger import get_logger
+from secure_logging.secure_logger import get_logger
 
 logger = get_logger(__name__)
 

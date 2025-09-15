@@ -15,6 +15,7 @@ class OperationStatus(Enum):
     FAILED = "failed"
     PERMISSION_DENIED = "permission_denied"
     CANCELLED = "cancelled"
+    NOT_FOUND = "not_found"
 
 
 @dataclass

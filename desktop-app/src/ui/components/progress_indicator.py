@@ -8,10 +8,11 @@ from tkinter import ttk
 from typing import Callable, Optional
 
 # Add shared modules to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
 try:
-    from shared.models.file_info import ScanProgress
+    from models.file_info import ScanProgress
     from deletion.progress_tracker import ProgressInfo, ProgressState
 except ImportError:
     # Fallback for testing

@@ -8,15 +8,20 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 # Add shared modules to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
-from shared.models.file_info import FileInfo
-from shared.models.operation_result import OperationResult, OperationStatus
-from shared.secure_logging.sanitizer import sanitize_path
-from shared.secure_logging.secure_logger import get_logger
+from models.file_info import FileInfo
+from models.operation_result import OperationResult, OperationStatus
+from secure_logging.sanitizer import sanitize_path
+from secure_logging.secure_logger import get_logger
 
-from .os_integration import DeletionMethod, OSIntegration
-from .progress_tracker import ProgressInfo, ProgressState, ProgressTracker
+try:
+    from .os_integration import DeletionMethod, OSIntegration
+    from .progress_tracker import ProgressInfo, ProgressState, ProgressTracker
+except ImportError:
+    from deletion.os_integration import DeletionMethod, OSIntegration
+    from deletion.progress_tracker import ProgressInfo, ProgressState, ProgressTracker
 
 logger = get_logger(__name__)
 
@@ -25,8 +30,12 @@ try:
     from ..certificate.certificate_generator import CertificateGenerator
     CERTIFICATE_AVAILABLE = True
 except ImportError:
-    CERTIFICATE_AVAILABLE = False
-    logger.warning("Certificate generation not available")
+    try:
+        from certificate.certificate_generator import CertificateGenerator
+        CERTIFICATE_AVAILABLE = True
+    except ImportError:
+        CERTIFICATE_AVAILABLE = False
+        logger.warning("Certificate generation not available")
 
 
 @dataclass

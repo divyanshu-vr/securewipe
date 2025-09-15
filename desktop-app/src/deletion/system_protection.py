@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import List, Set, Dict, Optional, Tuple
 import re
 
-from shared.secure_logging.secure_logger import get_logger
-from shared.utils.exceptions import SecureWipeError
+from secure_logging.secure_logger import get_logger
+from utils.exceptions import SecureWipeError
 
 logger = get_logger(__name__)
 

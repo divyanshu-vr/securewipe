@@ -9,12 +9,18 @@ from tkinter import ttk
 from typing import Any, Callable, Dict, List, Optional
 
 # Add shared modules to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
-from shared.models.operation_result import OperationResult, OperationStatus
-from deletion.progress_tracker import ProgressInfo, ProgressState, ProgressTracker
-from ui.components.statistics_tracker import StatisticsTracker, OperationStatistics
-from ui.components.thread_safe_ui import ThreadSafeUIManager, UIUpdateType, BackgroundOperationManager
+from models.operation_result import OperationResult, OperationStatus
+try:
+    from ..deletion.progress_tracker import ProgressInfo, ProgressState, ProgressTracker
+    from .components.statistics_tracker import StatisticsTracker, OperationStatistics
+    from .components.thread_safe_ui import ThreadSafeUIManager, UIUpdateType, BackgroundOperationManager
+except ImportError:
+    from deletion.progress_tracker import ProgressInfo, ProgressState, ProgressTracker
+    from ui.components.statistics_tracker import StatisticsTracker, OperationStatistics
+    from ui.components.thread_safe_ui import ThreadSafeUIManager, UIUpdateType, BackgroundOperationManager
 
 
 class GameProgressBar(tk.Canvas):

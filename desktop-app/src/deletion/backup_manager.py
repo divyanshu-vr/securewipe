@@ -11,8 +11,8 @@ from typing import List, Dict, Optional, Callable
 import time
 from datetime import datetime
 
-from shared.secure_logging.secure_logger import get_logger
-from shared.utils.exceptions import SecureWipeError
+from secure_logging.secure_logger import get_logger
+from utils.exceptions import SecureWipeError
 
 logger = get_logger(__name__)
 

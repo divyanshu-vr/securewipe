@@ -10,7 +10,7 @@ from pathlib import Path
 import threading
 
 from shared.logging.secure_logger import get_logger
-from shared.utils.exceptions import SecureWipeError
+from utils.exceptions import SecureWipeError
 
 logger = get_logger(__name__)
 

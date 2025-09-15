@@ -9,17 +9,18 @@ from typing import Optional
 
 # Add shared modules to path
 import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
 try:
-    from shared.models.certificate import Certificate
-    from shared.utils.qr_generator import generate_certificate_qr, is_qr_available
-    from shared.secure_logging.secure_logger import get_logger
+    from models.certificate import Certificate
+    from utils.qr_generator import generate_certificate_qr, is_qr_available
+    from secure_logging.secure_logger import get_logger
 except ImportError:
     # Fallback for different import contexts
-    from shared.models.certificate import Certificate
-    from shared.utils.qr_generator import generate_certificate_qr, is_qr_available
-    from shared.secure_logging.secure_logger import get_logger
+    from models.certificate import Certificate
+    from utils.qr_generator import generate_certificate_qr, is_qr_available
+    from secure_logging.secure_logger import get_logger
 
 logger = get_logger(__name__)
 

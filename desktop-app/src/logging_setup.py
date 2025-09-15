@@ -8,9 +8,12 @@ shared_path = str(Path(__file__).parent.parent.parent / "shared")
 if shared_path not in sys.path:
     sys.path.insert(0, shared_path)
 
-from config.defaults import get_log_file_path
+try:
+    from .config.defaults import get_log_file_path
+except ImportError:
+    from config.defaults import get_log_file_path
 
-from shared.secure_logging.secure_logger import get_logger
+from secure_logging.secure_logger import get_logger
 
 
 def setup_application_logging(debug: bool = False) -> None:

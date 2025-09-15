@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 # Add shared modules to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent / "shared"))
+shared_path = Path(__file__).parent.parent.parent.parent / "shared"
+sys.path.insert(0, str(shared_path))
 
 try:
-    from shared.models.file_info import FileInfo, ScanProgress
+    from models.file_info import FileInfo, ScanProgress
 except ImportError:
     # Fallback for testing
     from dataclasses import dataclass
