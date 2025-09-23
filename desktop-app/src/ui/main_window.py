@@ -5,6 +5,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
+from PIL import Image, ImageTk
 
 # Add shared module to path
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "shared"))
@@ -123,52 +124,193 @@ class MainWindow:
         self._create_content_area(main_frame)
 
     def _create_modern_header(self, parent):
-        """Create modern header with minimal branding."""
-        header_frame = tk.Frame(parent, bg=ModernColors.BACKGROUND, height=80)
-        header_frame.pack(fill=tk.X, padx=ModernColors.SPACING['2xl'], 
-                         pady=(ModernColors.SPACING['2xl'], ModernColors.SPACING['lg']))
+        """Create modern header with centralized professional branding."""
+        # Create a simple, clean header without complex nesting
+        header_frame = tk.Frame(parent, bg=ModernColors.BACKGROUND)
+        header_frame.pack(fill=tk.X, pady=ModernColors.SPACING['xl'])
         header_frame.pack_propagate(False)
 
-        # Left side - branding
-        brand_frame = tk.Frame(header_frame, bg=ModernColors.BACKGROUND)
-        brand_frame.pack(side=tk.LEFT, fill=tk.Y)
+        # Single centered logo without extra containers
+        self._create_professional_logo(header_frame)
 
-        # Main title with modern typography
-        title_label = tk.Label(
-            brand_frame,
-            text="SecureWipe",
-            bg=ModernColors.BACKGROUND,
-            fg=ModernColors.FOREGROUND,
-            font=("Segoe UI", 28, "bold"),
-            anchor="w"
-        )
-        title_label.pack(anchor="w")
-
-        # Subtle subtitle
-        subtitle_label = tk.Label(
-            brand_frame,
-            text="Secure File Deletion",
-            bg=ModernColors.BACKGROUND,
-            fg=ModernColors.MUTED_FOREGROUND,
-            font=("Segoe UI", 12),
-            anchor="w"
-        )
-        subtitle_label.pack(anchor="w", pady=(2, 0))
-
-        # Right side - status indicator
-        status_frame = tk.Frame(header_frame, bg=ModernColors.BACKGROUND)
-        status_frame.pack(side=tk.RIGHT, fill=tk.Y)
-
+        # Status indicator in top right corner
         self.status_var = tk.StringVar(value="Ready")
         self.status_label = tk.Label(
-            status_frame,
+            header_frame,
             textvariable=self.status_var,
             bg=ModernColors.BACKGROUND,
             fg=ModernColors.SUCCESS,
-            font=("Segoe UI", 11, "bold"),
+            font=("Segoe UI", 10, "bold"),
             anchor="e"
         )
-        self.status_label.pack(side=tk.RIGHT, anchor="e", pady=(20, 0))
+        self.status_label.pack(side=tk.RIGHT, anchor="ne", padx=ModernColors.SPACING['lg'])
+
+    def _create_professional_logo(self, parent):
+        """Create professional, centralized logo with modern styling."""
+        # Main logo container - centered
+        logo_frame = tk.Frame(parent, bg=ModernColors.BACKGROUND)
+        logo_frame.pack()
+
+        # Create the logo visual directly without container
+        self._create_logo_visual(logo_frame)
+
+        # Main title with professional typography
+        title_label = tk.Label(
+            logo_frame,
+            text="SecureWipe",
+            bg=ModernColors.BACKGROUND,
+            fg=ModernColors.FOREGROUND,
+            font=("Segoe UI", 32, "bold"),
+            anchor="center"
+        )
+        title_label.pack(pady=(ModernColors.SPACING['lg'], ModernColors.SPACING['sm']))
+
+        # Professional subtitle with muted styling
+        subtitle_label = tk.Label(
+            logo_frame,
+            text="Professional Secure File Deletion",
+            bg=ModernColors.BACKGROUND,
+            fg=ModernColors.MUTED_FOREGROUND,
+            font=("Segoe UI", 14),
+            anchor="center"
+        )
+        subtitle_label.pack(pady=(0, ModernColors.SPACING['lg']))
+
+        # Professional tagline
+        tagline_label = tk.Label(
+            logo_frame,
+            text="Enterprise-Grade Data Sanitization",
+            bg=ModernColors.BACKGROUND,
+            fg=ModernColors.PRIMARY,
+            font=("Segoe UI", 11, "italic"),
+            anchor="center"
+        )
+        tagline_label.pack()
+
+    def _create_logo_visual(self, parent):
+        """Create WipeX logo from image file."""
+        try:
+            # Get the path to the logo image
+            logo_path = Path(__file__).parent.parent.parent / "assets" / "wipex_logo.png"
+            
+            if logo_path.exists():
+                # Load and resize the WipeX logo
+                image = Image.open(logo_path)
+                # Resize to fit the UI (80x80 pixels)
+                image = image.resize((80, 80), Image.Resampling.LANCZOS)
+                self.logo_photo = ImageTk.PhotoImage(image)
+                
+                # Create label to display the logo
+                logo_label = tk.Label(
+                    parent,
+                    image=self.logo_photo,
+                    bg=ModernColors.BACKGROUND
+                )
+                logo_label.pack(pady=(0, ModernColors.SPACING['md']))
+            else:
+                # Fallback: Create a simple WipeX text logo if image not found
+                self._create_fallback_logo(parent)
+                
+        except ImportError:
+            # PIL not available, use fallback
+            self._create_fallback_logo(parent)
+        except Exception as e:
+            self.logger.warning(f"Could not load logo image: {e}")
+            self._create_fallback_logo(parent)
+    
+    def _create_fallback_logo(self, parent):
+        """Create a simple text-based WipeX logo as fallback."""
+        # Simple WipeX text logo
+        logo_frame = tk.Frame(parent, bg=ModernColors.BACKGROUND)
+        logo_frame.pack(pady=(0, ModernColors.SPACING['md']))
+        
+        wipex_label = tk.Label(
+            logo_frame,
+            text="WipeX",
+            bg=ModernColors.BACKGROUND,
+            fg=ModernColors.PRIMARY,
+            font=("Segoe UI", 24, "bold")
+        )
+        wipex_label.pack()
+        
+        tagline_label = tk.Label(
+            logo_frame,
+            text="SECURE DISK CLEANING",
+            bg=ModernColors.BACKGROUND,
+            fg=ModernColors.MUTED_FOREGROUND,
+            font=("Segoe UI", 8, "bold")
+        )
+        tagline_label.pack()
+
+    def _lighten_color(self, color: str, factor: float) -> str:
+        """Lighten a hex color by a factor."""
+        try:
+            color = color.lstrip('#')
+            rgb = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+            rgb = tuple(min(255, int(c + (255 - c) * factor)) for c in rgb)
+            return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
+        except:
+            return color
+
+    def _create_content_logo(self, parent):
+        """Create WipeX logo for the main content area."""
+        try:
+            # Get the path to the logo image
+            logo_path = Path(__file__).parent.parent.parent / "assets" / "wipex_logo.png"
+            
+            if logo_path.exists():
+                # Load and resize the WipeX logo for content area
+                image = Image.open(logo_path)
+                # Larger size for content area (120x120 pixels)
+                image = image.resize((280, 280), Image.Resampling.LANCZOS)
+                self.content_logo_photo = ImageTk.PhotoImage(image)
+                
+                # Create label to display the logo
+                logo_label = tk.Label(
+                    parent,
+                    image=self.content_logo_photo,
+                    bg=ModernColors.CARD
+                )
+                logo_label.pack(pady=(0, ModernColors.SPACING['lg']))
+            else:
+                # Fallback: Create WipeX text logo
+                self._create_content_fallback_logo(parent)
+                
+        except ImportError:
+            # PIL not available, use fallback
+            self._create_content_fallback_logo(parent)
+        except Exception as e:
+            self.logger.warning(f"Could not load content logo image: {e}")
+            self._create_content_fallback_logo(parent)
+    
+    def _create_content_fallback_logo(self, parent):
+        """Create a larger WipeX text logo for content area."""
+        # Larger WipeX logo for content area
+        logo_frame = tk.Frame(parent, bg=ModernColors.CARD)
+        logo_frame.pack(pady=(0, ModernColors.SPACING['lg']))
+        
+        wipex_label = tk.Label(
+            logo_frame,
+            text="WipeX",
+            bg=ModernColors.CARD,
+            fg=ModernColors.PRIMARY,
+            font=("Segoe UI", 36, "bold")
+        )
+        wipex_label.pack()
+        
+        tagline_label = tk.Label(
+            logo_frame,
+            text="SECURE DISK CLEANING",
+            bg=ModernColors.CARD,
+            fg=ModernColors.MUTED_FOREGROUND,
+            font=("Segoe UI", 12, "bold")
+        )
+        tagline_label.pack(pady=(4, 0))
+
+    def _create_security_icon(self, parent):
+        """Create modern security icon for welcome screen."""
+        # This method is kept for backward compatibility but not used
+        pass
 
     def _create_action_section(self, parent):
         """Create modern action buttons section."""
@@ -223,15 +365,8 @@ class MainWindow:
         center_frame = tk.Frame(welcome_frame, bg=ModernColors.CARD)
         center_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Modern icon/illustration placeholder
-        icon_label = tk.Label(
-            center_frame,
-            text="🛡️",
-            bg=ModernColors.CARD,
-            fg=ModernColors.PRIMARY,
-            font=("Segoe UI", 64)
-        )
-        icon_label.pack(pady=(0, ModernColors.SPACING['lg']))
+        # WipeX logo in content area
+        self._create_content_logo(center_frame)
 
         # Clean title
         title_label = tk.Label(
@@ -738,7 +873,7 @@ class MainWindow:
                 from ui.certificate_viewer import CertificateViewer
             
             certificate, certificate_path = certificate_info
-            viewer = CertificateViewer(self.root)
+            viewer = CertificateViewer(self.root)  # type: ignore
             viewer.show_certificate(certificate, certificate_path)
             
         except Exception as e:

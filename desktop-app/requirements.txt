@@ -1,6 +1,7 @@
 # Core dependencies
 cryptography==41.0.2
 jsonschema==4.20.0
+Pillow==10.0.0
 
 # UI Framework (built-in with Python)
 # tkinter - no external dependency required
